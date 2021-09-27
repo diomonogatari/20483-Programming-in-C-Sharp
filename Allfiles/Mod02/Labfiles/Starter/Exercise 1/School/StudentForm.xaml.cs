@@ -13,6 +13,7 @@ namespace School
         public StudentForm()
         {
             InitializeComponent();
+            firstName.Focus();
         }
 
         #endregion

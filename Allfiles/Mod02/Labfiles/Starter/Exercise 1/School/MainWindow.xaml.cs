@@ -54,109 +54,143 @@ namespace School
 
         #endregion
 
+
         // When the user presses a key, determine whether to add a new student to a class, remove a student from a class, or modify the details of a student
         private void studentsList_KeyDown(object sender, KeyEventArgs e)
         {
+            Student student = this.studentsList.SelectedItem as Student;
+            // Use the StudentsForm to display and edit the details of the student
+            StudentForm sf = new StudentForm();
             switch (e.Key)
             {
                 // If the user pressed Enter, edit the details for the currently selected student
+                #region Enter Key 
                 case Key.Enter:
-                    // TODO: Exercise 1: Task 1a: Copy code for editing the details for that student
-                    Student student = this.studentsList.SelectedItem as Student;
-                    
-                    // TODO: Exercise 1: Task 3d: Refactor as the EditStudent method
- 
-                    // Use the StudentsForm to display and edit the details of the student
-                    StudentForm sf = new StudentForm();
 
-                    // Set the title of the form and populate the fields on the form with the details of the student           
-                    sf.Title = "Edit Student Details";
-                    sf.firstName.Text = student.FirstName;
-                    sf.lastName.Text = student.LastName;
-                    sf.dateOfBirth.Text = student.DateOfBirth.ToString("d"); // Format the date to omit the time element
+                    editStudent(student, sf);
 
-                    // Display the form
-                    if (sf.ShowDialog().Value)
-                    {
-                        // When the user closes the form, copy the details back to the student
-                        student.FirstName = sf.firstName.Text;
-                        student.LastName = sf.lastName.Text;
-                        student.DateOfBirth = DateTime.Parse(sf.dateOfBirth.Text);
-
-                        // Enable saving (changes are not made permanent until they are written back to the database)
-                        saveChanges.IsEnabled = true;
-                    }
                     break;
+                #endregion
 
+
+                #region
                 // If the user pressed Insert, add a new student
-                case Key.Insert: 
+                case Key.Insert:
 
-                    // TODO: Exercise 1: Task 3a: Refactor as the addNewStudent method
+                    // Done: Exercise 1: Task 3a: Refactor as the addNewStudent method
+                    addNewStudent(sf);
 
-                    // Use the StudentsForm to get the details of the student from the user
-                    sf = new StudentForm();
-
-                    // Set the title of the form to indicate which class the student will be added to (the class for the currently selected teacher)
-                    sf.Title = "New Student for Class " + teacher.Class;
-
-                    // Display the form and get the details of the new student
-                    if (sf.ShowDialog().Value)
-                    {
-                        // When the user closes the form, retrieve the details of the student from the form
-                        // and use them to create a new Student object
-                        Student newStudent = new Student();
-                        newStudent.FirstName = sf.firstName.Text;
-                        newStudent.LastName = sf.lastName.Text;
-                        newStudent.DateOfBirth = DateTime.Parse(sf.dateOfBirth.Text);
-
-                        // Assign the new student to the current teacher
-                        this.teacher.Students.Add(newStudent);
-
-                        // Add the student to the list displayed on the form
-                        this.studentsInfo.Add(newStudent);
-
-                        // Enable saving (changes are not made permanent until they are written back to the database)
-                        saveChanges.IsEnabled = true;
-                    }
                     break;
+                #endregion
 
                 // If the user pressed Delete, remove the currently selected student
-                case Key.Delete: student = this.studentsList.SelectedItem as Student;
+                #region Delete Key
+                case Key.Delete:
 
-                    // TODO: Exercise 1: Task 3b: Refactor as the removeStudent method
-
-                    // Prompt the user to confirm that the student should be removed
-                    MessageBoxResult response = MessageBox.Show(
-                        String.Format("Remove {0}", student.FirstName + " " + student.LastName),
-                        "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question,
-                        MessageBoxResult.No);
-
-                    // If the user clicked Yes, remove the student from the database
-                    if (response == MessageBoxResult.Yes)
-                    {
-                        this.schoolContext.Students.DeleteObject(student);
-
-                        // Enable saving (changes are not made permanent until they are written back to the database)
-                        saveChanges.IsEnabled = true;
-                    }
+                    // Done: Exercise 1: Task 3b: Refactor as the removeStudent method
+                    removeStudent(student);
                     break;
+                    #endregion
             }
         }
 
-        // TODO: Exercise 1: Task 3c: create Edit student method
 
-
-
-        // TODO: Exercise 1: Task 1b: If the user double-clicks a student, edit the details for that student
-        private void studentsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        #region Refactors
+        private void removeStudent(Student st)
         {
 
+            // Prompt the user to confirm that the student should be removed
+            MessageBoxResult response = MessageBox.Show(
+                String.Format("Remove {0}", st.FirstName + " " + st.LastName),
+                "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question,
+                MessageBoxResult.No);
+
+            // If the user clicked Yes, remove the student from the database
+            if (response == MessageBoxResult.Yes)
+            {
+                this.schoolContext.Students.DeleteObject(st);
+
+                // Enable saving (changes are not made permanent until they are written back to the database)
+                saveChanges.IsEnabled = true;
+            }
+        }
+
+
+        // Done: Exercise 1: Task 3d: Refactor as the editStudent method
+        private void editStudent(Student st, StudentForm sf)
+        {
+            // Set the title of the form and populate the fields on the form with the details of the student           
+            sf.Title = "Edit Student Details";
+            sf.firstName.Text = st.FirstName;
+            sf.lastName.Text = st.LastName;
+            sf.dateOfBirth.Text = st.DateOfBirth.ToString("d"); // Format the date to omit the time element
+
+            // Display the form
+            if (sf.ShowDialog().Value)
+            {
+                // When the user closes the form, copy the details back to the student
+                st.FirstName = sf.firstName.Text;
+                st.LastName = sf.lastName.Text;
+                st.DateOfBirth = DateTime.Parse(sf.dateOfBirth.Text);
+
+                // Enable saving (changes are not made permanent until they are written back to the database)
+                saveChanges.IsEnabled = true;
+            }
+        }
+
+
+        private void addNewStudent(StudentForm sf)
+        {
+            // Done: Exercise 1: Task 3a: Refactor as the addNewStudent method
+
+            // Set the title of the form to indicate which class the student will be added to (the class for the currently selected teacher)
+            sf.Title = "New Student for Class " + teacher.Class;
+
+            // Display the form and get the details of the new student
+            if (sf.ShowDialog().Value)
+            {
+                // When the user closes the form, retrieve the details of the student from the form
+                // and use them to create a new Student object
+                Student newStudent = new Student();
+                newStudent.FirstName = sf.firstName.Text;
+                newStudent.LastName = sf.lastName.Text;
+                newStudent.DateOfBirth = DateTime.Parse(sf.dateOfBirth.Text);
+
+                // Assign the new student to the current teacher
+                this.teacher.Students.Add(newStudent);
+
+                // Add the student to the list displayed on the form
+                this.studentsInfo.Add(newStudent);
+
+                // Enable saving (changes are not made permanent until they are written back to the database)
+                saveChanges.IsEnabled = true;
+            }
+        }
+
+
+        #endregion
+
+
+
+
+
+        // Done: Exercise 1: Task 1b: If the user double-clicks a student, edit the details for that student
+        private void studentsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Done: Exercise 1: Task 1a: Copy code for editing the details for that student
+            Student student = this.studentsList.SelectedItem as Student;
+
+            // Use the StudentsForm to display and edit the details of the student
+            StudentForm sf = new StudentForm();
+
+            editStudent(student, sf);
         }
 
         // Save changes back to the database and make them permanent
         private void saveChanges_Click(object sender, RoutedEventArgs e)
         {
-           
+            schoolContext.SaveChanges();
+            saveChanges.IsEnabled = false;
         }
     }
 
