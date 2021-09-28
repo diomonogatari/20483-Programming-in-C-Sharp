@@ -34,19 +34,27 @@ namespace GradesPrototype
         // TODO: Exercise 1: Task 3a: Display the logon view and and hide the list of students and single student view
         public void GotoLogon()
         {
-
+            logonPage.Visibility = Visibility.Visible;
+            studentsPage.Visibility = Visibility.Collapsed;
+            studentProfile.Visibility = Visibility.Collapsed;
         }
 
         // TODO: Exercise 1: Task 4c: Display the list of students
         private void GotoStudentsPage()
-        {            
+        {
+            studentProfile.Visibility = Visibility.Collapsed;
 
+            studentsPage.Visibility = Visibility.Visible;
+            studentsPage.Refresh();
         }
 
         // TODO: Exercise 1: Task 4b: Display the details for a single student
         public void GotoStudentProfile()
         {
+            studentsPage.Visibility = Visibility.Collapsed;
 
+            studentProfile.Visibility = Visibility.Visible;
+            studentProfile.Refresh();
         }
         #endregion
 
@@ -54,6 +62,12 @@ namespace GradesPrototype
 
         // TODO: Exercise 1: Task 3b: Handle successful logon
         // Update the display and show the data for the logged on user
+        private void Logon_Success(object sender, EventArgs e)
+        {
+            logonPage.Visibility = Visibility.Collapsed;
+            gridLoggedIn.Visibility = Visibility.Visible;
+            Refresh();
+        }
 
         // Handle logoff
         private void Logoff_Click(object sender, RoutedEventArgs e)
@@ -75,7 +89,8 @@ namespace GradesPrototype
         // Set the global context to the name of the student and call the GotoStudentProfile method to display the details of the student
         private void studentsPage_StudentSelected(object sender, StudentEventArgs e)
         {
-
+            SessionContext.CurrentStudent = e.Child;
+            GotoStudentProfile();
         }
         #endregion
 
@@ -84,7 +99,19 @@ namespace GradesPrototype
         // TODO: Exercise 1: Task 4a: Update the display for the logged on user (student or teacher)
         private void Refresh()
         {
- 
+            txtName.Text = SessionContext.UserName;
+
+            switch (SessionContext.UserRole)
+            {
+                case Role.Student:
+                    GotoStudentProfile();
+                    break;
+                case Role.Teacher:
+                    GotoStudentsPage();
+                    break;
+
+
+            }
         }
         #endregion
     }
