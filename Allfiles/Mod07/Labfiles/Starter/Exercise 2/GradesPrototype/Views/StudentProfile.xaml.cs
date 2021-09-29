@@ -99,20 +99,28 @@ namespace GradesPrototype.Views
             try
             {
                 // TODO: Exercise 2: Task 3a: Use the GradeDialog to get the details of the new grade.
-                
+                GradeDialog a = new GradeDialog();
 
                 // TODO: Exercise 2: Task 3b: Display the form and get the details of the new grade.
-                
+                if (a.ShowDialog().Value)
+                {
                     // TODO: Exercise 2: Task 3c: When the user closes the form, retrieve the details of the assessment grade from the form
                     // and use them to create a new Grade object.
-                   
-
-                    // TODO: Exercise 2: Task 3d: Save the grade.
-                   
-
-                    // TODO: Exercise 2: Task 3e: Refresh the display so that the new grade appears
+                    Grade newGrade = new Grade();
+                    newGrade.Assessment = a.assessmentGrade.Text;
+                    newGrade.AssessmentDate = a.assessmentDate.SelectedDate.Value;
+                    newGrade.SubjectId = a.subject.SelectedIndex;
+                    newGrade.Comments = a.comments.Text;
+                    newGrade.StudentUserId = SessionContext.CurrentStudent.UserId;
                     
-                
+                    // TODO: Exercise 2: Task 3d: Save the grade.
+                    SessionContext.DBContext.Grades.Add(newGrade);
+                    SessionContext.Save();
+                    
+                    // TODO: Exercise 2: Task 3e: Refresh the display so that the new grade appears
+                    Refresh();
+
+                }
             }
             catch (Exception ex)
             {
@@ -220,7 +228,7 @@ namespace GradesPrototype.Views
             while (reader.Read())
             {
                 switch (reader.NodeType)
-                {                    
+                {
                     case XmlNodeType.XmlDeclaration:
                         // The node is an XML declaration such as <?xml version='1.0'>
                         builder.Append(String.Format("<?{0} {1}>\n", reader.Name, reader.Value));
@@ -278,10 +286,15 @@ namespace GradesPrototype.Views
             }
 
             // TODO: Exercise 2: Task 1a: Find all the grades for the student.
-            
+            List<Grade> grades = new List<Grade>();
+            foreach (Grade g in SessionContext.DBContext.Grades)
+            {
+                if (g.StudentUserId == SessionContext.CurrentStudent.UserId)
+                    grades.Add(g);
+            }
 
             // TODO: Exercise 2: Task 1b: Display the grades in the studentGrades ItemsControl by using databinding
-            
+            studentGrades.ItemsSource = grades;
         }
     }
 
@@ -293,11 +306,11 @@ namespace GradesPrototype.Views
                               System.Globalization.CultureInfo culture)
         {
             // TODO: Exercise 2: Task 2a: Convert the subject ID provided in the value parameter.
+            int subjectId = (int)value;
+            var subject = SessionContext.DBContext.Subjects.FirstOrDefault(s => s.Id == subjectId);
 
             // TODO: Exercise 2: Task 2b: Return the subject name or the string "N/A".
-
-
-            return value;
+            return subject.Name != string.Empty ? subject.Name : "N/A";
         }
 
         #region Predefined code
