@@ -20,6 +20,7 @@ using Microsoft.Win32;
 using GradesPrototype.Controls;
 using GradesPrototype.Data;
 using GradesPrototype.Services;
+using Newtonsoft.Json;
 // TODO: Exercise 1: Task 1a: Add Using for Newtonsoft.Json
 
 
@@ -139,18 +140,38 @@ namespace GradesPrototype.Views
                 dialog.DefaultExt = ".json";
 
                 // TODO: Exercise 1: Task 1b: Store the return value from the SaveFileDialog in a nullable Boolean variable.
-                
+                bool? res = dialog.ShowDialog();
                 // TODO: Exercise 1: Task 1c: Get the grades for the currently selected student.
+                if(res.HasValue && res.Value)
+                {
+                    List<Grade> grades = DataSource.Grades.Where(g => g.StudentID == SessionContext.CurrentStudent.StudentID).ToList();
 
-                // TODO: Exercise 1: Task 2: Serialize the grades to a JSON.
+                    // TODO: Exercise 1: Task 2: Serialize the grades to a JSON.
+                    var gradesSerialized = JsonConvert.SerializeObject(grades, Newtonsoft.Json.Formatting.Indented);
 
-                //TODO: Exercise 1: Task 3a: Modify the message box and ask the user whether they wish to save the report
-                
-                //TODO: Exercise 1: Task 3b: Check if the user what to save the report or not
-                
-                //TODO: Exercise 1: Task 3c: Save the data to the file by using FileStream
+                    //TODO: Exercise 1: Task 3a: Modify the message box and ask the user whether they wish to save the report
+                    MessageBoxResult msgResult = MessageBox.Show(gradesSerialized, "Do you want to save the report?", MessageBoxButton.YesNo,MessageBoxImage.Question);
                     
-                //TODO: Exercise 1: Task 3d: Release all the stream resources
+                    //TODO: Exercise 1: Task 3b: Check if the user what to save the report or not
+                    if(msgResult == MessageBoxResult.Yes)
+                    {
+                        //TODO: Exercise 1: Task 3c: Save the data to the file by using FileStream
+                        FileStream fs = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write);
+                        
+                        //open the streaming pipe
+                        StreamWriter sw = new StreamWriter(fs);
+                        sw.Write(gradesSerialized);
+                        
+                        fs.Position = 0; //why???
+
+                        //TODO: Exercise 1: Task 3d: Release all the stream resources
+                        sw.Close();
+                        sw.Dispose();
+
+                        fs.Close();
+                        fs.Dispose();
+                    }
+                }
                 
             }
             catch (Exception ex)
