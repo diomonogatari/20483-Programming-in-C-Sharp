@@ -47,7 +47,7 @@ namespace Grades.WPF
             }
 
             // TODO: Exercise 1: Task 5a: Bind the list of students to the "list" ItemsControl
-            
+            this.list.ItemsSource = resultData;
 
             txtClass.Text = String.Format("Class {0}", SessionContext.CurrentTeacher.Class);
 
