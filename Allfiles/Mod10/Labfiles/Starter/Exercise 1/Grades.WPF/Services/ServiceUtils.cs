@@ -34,16 +34,18 @@ namespace Grades.WPF.Services
 
         #region Teacher
         // TODO: Exercise 1: Task 2a: Convert GetTeacher into an async method that returns a Task<Teacher>
-        public Teacher GetTeacher(string userName)
+        public async Task<Teacher> GetTeacher(string userName)
         {
             if (!IsConnected())
                 return null;
-            
-            // TODO: Exercise 1: Task 2b: Perform the LINQ query to fetch Teacher information asynchronously
-            var teacher = (from t in DBContext.Teachers
-                           where t.User.UserName == userName
-                           select t).FirstOrDefault();
 
+            // TODO: Exercise 1: Task 2b: Perform the LINQ query to fetch Teacher information asynchronously
+            var teacher = await Task.Run(() =>
+                            (
+                                from t in DBContext.Teachers
+                                where t.User.UserName == userName
+                                select t
+                            ).FirstOrDefault());
             return teacher;
         }
 
@@ -129,7 +131,7 @@ namespace Grades.WPF.Services
                             select s).OrderBy(s => s.LastName).ToList();
 
             return students;
-        }            
+        }
 
         public Student GetStudent(string userName)
         {
